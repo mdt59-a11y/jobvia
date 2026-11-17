@@ -1,0 +1,41 @@
+name: daily-jobs
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: daily-jobs
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      SITE_URL: ${{ vars.SITE_URL }}
+      WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
+      ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+      ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+      USAJOBS_API_KEY: ${{ secrets.USAJOBS_API_KEY }}
+      USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
+      FRANCE_TRAVAIL_ID: ${{ secrets.FRANCE_TRAVAIL_ID }}
+      FRANCE_TRAVAIL_SECRET: ${{ secrets.FRANCE_TRAVAIL_SECRET }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install google-auth requests
+      - run: python jobvia.py fetch
+      - run: python jobvia.py build
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=jobvia --branch=main
+      - run: python jobvia.py index
+      - run: |
+          git config user.name bot
+          git config user.email bot@users.noreply.github.com
+          git add data
+          git commit -m "daily update" || true
+          git push
