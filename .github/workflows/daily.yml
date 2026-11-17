@@ -10,7 +10,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     env:
-      SITE_URL: ${{ vars.SITE_URL }}
+      SITE_URL: https://jobvia-8h9.pages.dev
       WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
       ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
       ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
@@ -31,7 +31,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=jobvia --branch=main
+          command: pages deploy dist --project-name=jobvia-8h9 --branch=main
       - run: python jobvia.py index
       - run: |
           git config user.name bot
