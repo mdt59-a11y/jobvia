@@ -28,10 +28,16 @@ jobs:
       - run: python jobvia.py fetch
       - run: python jobvia.py build
       - uses: cloudflare/wrangler-action@v3
+        continue-on-error: true
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=jobvia-8h9 --branch=main
+          command: pages project create jobvia --production-branch=main
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=jobvia --branch=main
       - run: python jobvia.py index
       - run: |
           git config user.name bot
